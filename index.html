@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sinh Viên</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        margin: 0 auto 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: center;
+      }
+
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      input[type="text"] {
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      input[type="submit"] {
+        padding: 14px 30px;
+        background: #42d392;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      input[type="submit"]:active {
+        transform: translateY(0);
+      }
+
+      table {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      th {
+        background: #42d392;
+        color: white;
+        padding: 18px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 15px 18px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr {
+        transition: background-color 0.2s ease;
+      }
+
+      tbody tr:hover {
+        background-color: #f8f9ff;
+      }
+
+      td img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #667eea;
+      }
+
+      button {
+        padding: 8px 16px;
+        margin: 0 5px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+      }
+
+      button:first-of-type {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      button:first-of-type:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+      }
+
+      button:last-of-type {
+        background-color: #f44336;
+        color: white;
+      }
+
+      button:last-of-type:hover {
+        background-color: #da190b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        form {
+          grid-template-columns: 1fr;
+          padding: 20px;
+        }
+
+        table {
+          font-size: 0.9rem;
+        }
+
+        th, td {
+          padding: 10px;
+        }
+
+        button {
+          padding: 6px 12px;
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎓 Quản Lý Sinh Viên</h1>
+    <form id="studentForm">
+      <label for="studentName">Tên Sinh Viên:</label>
+      <input type="text" id="studentName" name="studentName" required /> <br>
+      <label for="Avatar">Avatar URL:</label>
+      <input type="text" id="Avatar" name="Avatar" required /> <br>
+      <label for="Phone">Số điện thoại:</label>
+      <input type="text" id="Phone" name="Phone" required /> <br>
+      <input type="hidden" id="editId" value="" />
+      <input type="submit" id="submitBtn" value="Thêm sinh viên" /> <br>
+    </form>
+    <table border="1" cellspacing="0" cellpadding="10">
+      <tr>
+        <th>ID</th>
+        <th>Tên sinh viên</th>
+        <th>Avatar</th>
+        <th>Số điện thoại</th>
+        <th>Hành động</th>
+      </tr>
+      <tbody id="tbody"></tbody>
+    </table>
+    <script>
+      const API_URL =
+        "https://69844cc4885008c00db0a5ab.mockapi.io/api/v1/SinhVien";
+      const tbody = document.getElementById("tbody");
+      const form = document.getElementById("studentForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const editIdInput = document.getElementById("editId");
+
+      // READ
+      function loadUsers() {
+        fetch(API_URL)
+          .then((res) => res.json())
+          .then((data) => {
+            tbody.innerHTML = "";
+            console.log(tbody);
+            data.forEach((u) => {
+              tbody.innerHTML += `
+            <tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td><img src="${u.avatar}" /></td>
+              <td>${u.phone}</td>
+              <td>
+                <button onclick='editUser(${JSON.stringify(u)})'>Edit</button>
+                <button onclick='deleteUser(${u.id})'>Delete</button>
+              </td>
+            </tr>
+          `;
+            });
+          });
+      }
+
+      // CREATE & UPDATE
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        
+        const student = {
+          name: document.getElementById("studentName").value,
+          avatar: document.getElementById("Avatar").value,
+          phone: document.getElementById("Phone").value,
+        };
+
+        const editId = editIdInput.value;
+
+        if (editId) {
+          // UPDATE
+          fetch(`${API_URL}/${editId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(student),
+          })
+            .then((res) => res.json())
+            .then(() => {
+              loadUsers();
+              form.reset();
+              editIdInput.value = "";
+              submitBtn.value = "Thêm sinh viên";
+              Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: 'Cập nhật sinh viên thành công!',
+                confirmButtonColor: '#42d392',
+                timer: 2000
+              });
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Có lỗi xảy ra khi cập nhật!',
+                confirmButtonColor: '#f44336'
+              });
+            });
+        } else {
+          // CREATE
+          fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(student),
+          })
+            .then((res) => res.json())
+            .then(() => {
+              loadUsers();
+              form.reset();
+              Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: 'Thêm sinh viên thành công!',
+                confirmButtonColor: '#42d392',
+                timer: 2000
+              });
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Có lỗi xảy ra khi thêm sinh viên!',
+                confirmButtonColor: '#f44336'
+              });
+            });
+        }
+      });
+
+      // UPDATE - Load data to form
+      function editUser(user) {
+        document.getElementById("studentName").value = user.name;
+        document.getElementById("Avatar").value = user.avatar;
+        document.getElementById("Phone").value = user.phone;
+        editIdInput.value = user.id;
+        submitBtn.value = "Cập nhật sinh viên";
+        
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // DELETE
+      function deleteUser(id) {
+        Swal.fire({
+          title: 'Bạn có chắc chắn?',
+          text: "Bạn muốn xóa sinh viên này?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#f44336',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Xóa',
+          cancelButtonText: 'Hủy'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`${API_URL}/${id}`, {
+              method: "DELETE",
+            })
+              .then((res) => res.json())
+              .then(() => {
+                loadUsers();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Đã xóa!',
+                  text: 'Xóa sinh viên thành công!',
+                  confirmButtonColor: '#42d392',
+                  timer: 2000
+                });
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Lỗi!',
+                  text: 'Có lỗi xảy ra khi xóa!',
+                  confirmButtonColor: '#f44336'
+                });
+              });
+          }
+        });
+      }
+
+      loadUsers();
+    </script>
+  </body>
+</html>
